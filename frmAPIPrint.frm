@@ -2,14 +2,31 @@ VERSION 5.00
 Begin VB.Form frmAPIPrint 
    AutoRedraw      =   -1  'True
    Caption         =   "API Print"
-   ClientHeight    =   6195
+   ClientHeight    =   6192
    ClientLeft      =   120
-   ClientTop       =   450
-   ClientWidth     =   10575
+   ClientTop       =   456
+   ClientWidth     =   10572
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6195
-   ScaleWidth      =   10575
+   ScaleHeight     =   6192
+   ScaleWidth      =   10572
    StartUpPosition =   3  'Windows Default
+   Begin VB.CheckBox chkPreview 
+      Caption         =   "Preview"
+      Height          =   372
+      Left            =   5280
+      TabIndex        =   26
+      Top             =   5760
+      Value           =   1  'Checked
+      Width           =   1572
+   End
+   Begin VB.CommandButton Command1 
+      Caption         =   "Unicode Printing"
+      Height          =   492
+      Left            =   6960
+      TabIndex        =   25
+      Top             =   5640
+      Width           =   1572
+   End
    Begin VB.HScrollBar HSPages 
       Height          =   255
       Left            =   5040
@@ -21,8 +38,8 @@ Begin VB.Form frmAPIPrint
       Height          =   735
       Left            =   9120
       Picture         =   "frmAPIPrint.frx":0000
-      ScaleHeight     =   675
-      ScaleWidth      =   1275
+      ScaleHeight     =   684
+      ScaleWidth      =   1284
       TabIndex        =   23
       Top             =   960
       Width           =   1335
@@ -31,8 +48,8 @@ Begin VB.Form frmAPIPrint
       Height          =   735
       Left            =   9120
       Picture         =   "frmAPIPrint.frx":018A
-      ScaleHeight     =   675
-      ScaleWidth      =   1275
+      ScaleHeight     =   684
+      ScaleWidth      =   1284
       TabIndex        =   22
       Top             =   120
       Width           =   1335
@@ -162,9 +179,9 @@ Begin VB.Form frmAPIPrint
       ForeColor       =   &H80000008&
       Height          =   5055
       Left            =   120
-      ScaleHeight     =   335
+      ScaleHeight     =   419
       ScaleMode       =   3  'Pixel
-      ScaleWidth      =   319
+      ScaleWidth      =   399
       TabIndex        =   0
       Top             =   1080
       Width           =   4815
@@ -231,6 +248,19 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
+Private Declare Function TextOutW Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal lpString As Long, ByVal nCount As Long) As Long
+Private Declare Function SetBkMode Lib "gdi32" (ByVal hdc As Long, ByVal nBkMode As Long) As Long
+Private Const TRANSPARENT = 1
+Private Const OPAQUE = 2
+Private Declare Function StretchBlt Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal nSrcWidth As Long, ByVal nSrcHeight As Long, ByVal dwRop As Long) As Long
+Private Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal dwRop As Long) As Long
+Private Declare Function SetStretchBltMode Lib "gdi32" (ByVal hdc As Long, ByVal nStretchMode As Long) As Long
+Private Const HALFTONE = 4
+Private Type SIZEAPI
+    cX                  As Long
+    cY                  As Long
+End Type
+Private Declare Function GetTextExtentPointW Lib "gdi32" (ByVal hdc As Long, ByVal lpszString As Long, ByVal cbString As Long, lpSize As SIZEAPI) As Long
 
 Dim cp As New cPrinter
 Dim Pages() As IPicture
@@ -337,6 +367,9 @@ If cp.PrinterStartDoc Then
                 'cp.PrintText "Hello", 10, 10
             cp.Rectangle 1, 1, cp.Width - 2, cp.Height - 2
                     cp.PrintText "Page 1", cp.Width \ 2 - cp.TextWidth("Page 1") \ 2, 1
+                    cp.Font.Bold = True
+                    cp.Font.Italic = True
+                    cp.PrintText "Bold Itelaic", 0, 0
             cp.PaintPicture Me.Icon, cp.Width \ 2 - (32), 32, 64, 64
                 n = 1
             For c = 1 To (cp.Height \ cp.TextHeight("A"))
@@ -348,6 +381,7 @@ If cp.PrinterStartDoc Then
                 
         cp.PrinterEndPage
         cp.PrinterStartPage
+                    
                     cp.PrintText "Page 2", cp.Width \ 2 - cp.TextWidth("Page 1") \ 2, 1
             For c = 1 To (cp.Height \ cp.TextHeight("A"))
                 cp.PrintText "Line " & n, 4, (c - 1) * cp.TextHeight("A") + 1
@@ -383,7 +417,7 @@ If cp.PrinterStartDoc Then
                 cp.PaintPicture Picture3.Picture, cp.Width \ 2, 96
                 cp.PaintPicture Picture2.Picture, 4, 128
                     Picture1.Cls
-            cp.PaintTo Picture1.hDc, Picture1.ScaleWidth, Picture1.ScaleHeight
+            cp.PaintTo Picture1.hdc, Picture1.ScaleWidth, Picture1.ScaleHeight
                 Picture1.Refresh
                     ReDim Preserve Pages(PageCount)
                         Set Pages(PageCount) = Picture1.Image
@@ -396,7 +430,7 @@ If cp.PrinterStartDoc Then
                 n = n + 1
             Next
                     Picture1.Cls
-            cp.PaintTo Picture1.hDc, Picture1.ScaleWidth, Picture1.ScaleHeight
+            cp.PaintTo Picture1.hdc, Picture1.ScaleWidth, Picture1.ScaleHeight
                 Picture1.Refresh
                     ReDim Preserve Pages(PageCount)
                         Set Pages(PageCount) = Picture1.Image
@@ -483,6 +517,65 @@ If cboPaperSize.ListIndex = -1 Then Exit Sub
 
 End Sub
 
+Private Sub Command1_Click()
+Dim sz As SIZEAPI
+                Erase Pages
+                PageCount = 0
+        cp.Preview = chkPreview.Value = 1 'True
+If cp.PrinterStartDoc Then
+        cp.PrinterStartPage
+            SetBkMode cp.hdc, TRANSPARENT
+                'cp.PrintText "Hello", 10, 10
+            cp.Rectangle 1, 1, cp.Width - 2, cp.Height - 2
+            cp.Rectangle 10, 10, cp.Width - 20, cp.Height - 20
+        Dim f As New StdFont
+            f.Name = "Times New Roman"
+            f.Size = 50
+            f.Bold = True
+            f.Underline = True
+                    
+                    Set cp.Font = f
+            Dim str As String
+                str = "Unicode " + ChrW(3374) + ChrW(3378) + ChrW(3375) + ChrW(3390) + ChrW(3379) + ChrW(3330)
+                GetTextExtentPointW cp.hdc, StrPtr(str), Len(str), sz
+           TextOutW cp.hdc, cp.WidthPrint \ 2 - sz.cX \ 2, 40, StrPtr(str), Len(str)
+            
+'            BitBlt cp.hdc, 20, 100, 32, 32, Picture3.hdc, 0, 0, vbSrcCopy
+            cp.PaintPicture Picture3.Picture, 20, 100
+            cp.Rectangle 20, 140, 32, 32, vbRed, vbGreen
+            
+            f.Size = 80
+            f.Bold = False
+            f.Underline = False
+                    Set cp.Font = f
+                str = "Center"
+                    GetTextExtentPointW cp.hdc, StrPtr(str), Len(str), sz
+           TextOutW cp.hdc, cp.WidthPrint \ 2 - sz.cX \ 2, cp.HeightPrint \ 2 - sz.cY \ 2, StrPtr(str), Len(str)
+
+            
+
+            f.Size = 80
+            f.Bold = False
+            f.Underline = False
+                    Set cp.Font = f
+                str = "Bottom"
+                    GetTextExtentPointW cp.hdc, StrPtr(str), Len(str), sz
+           TextOutW cp.hdc, cp.WidthPrint \ 2 - sz.cX \ 2, (cp.HeightPrint - 20) - sz.cY, StrPtr(str), Len(str)
+
+
+'            cp.PaintTo Picture1.hdc, Picture1.ScaleWidth, Picture1.ScaleHeight
+            SetStretchBltMode Picture1.hdc, 4
+'            BitBlt Picture1.hdc, 0, 0, Picture1.ScaleWidth, Picture1.ScaleHeight, cp.hdc, 0, 0, vbSrcCopy
+            StretchBlt Picture1.hdc, 0, 0, Picture1.ScaleWidth, Picture1.ScaleHeight, cp.hdc, 0, 0, cp.WidthPrint, cp.HeightPrint, vbSrcCopy
+                Picture1.Refresh
+                   
+        cp.PrinterEndPage
+    cp.PrinterEndDoc
+End If
+        cp.Preview = False
+        
+End Sub
+
 Private Sub Command3_Click()
     cp.SetPrinterDefault cboPrinters.Text
 End Sub
@@ -502,6 +595,18 @@ If numprinters > 0 Then
         Erase sPrinterDispNames
 End If
         cboPrinters.Text = cp.PrinterDefault
+        
+    cboPrinters_Change
+Const mMMPerInch As Single = 25.4
+    cp.PrinterAddNewForm 4 * mMMPerInch * 1000, 4 * mMMPerInch * 1000, "Small4x4"
+    cboPrinters_Change
+For c = 0 To cboPaperSize.ListCount - 1
+    If cboPaperSize.List(c) = "Small4x4" Then
+        cboPaperSize.ListIndex = c
+        Exit For
+    End If
+Next
+
 ''  sc_Subclass Me.hwnd                                                       'Subclass a window... or three
 '' sc_AddMsg Me.hwnd, ALL_MESSAGES, MSG_AFTER                         'Add messages of interest
 
@@ -560,3 +665,4 @@ End Sub
 Private Sub HSPages_Scroll()
 HSPages_Change
 End Sub
+ 
