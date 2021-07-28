@@ -57,7 +57,7 @@ Private Const SIZEPALETTE               As Long = 104
 Private Const RC_PALETTE                As Long = &H100
 Private Const CAPS1                     As Long = 94 ' other caps
 Private Const C1_TRANSPARENT            As Long = &H1 ' new raster cap
-Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDc As Long, ByVal nIndex As Long) As Long
+Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hdc As Long, ByVal nIndex As Long) As Long
 Private Type PALETTEENTRY
    peRed               As Byte
    peGreen             As Byte
@@ -93,26 +93,26 @@ Private Type TEXTMETRIC
     tmCharSet           As Byte
 End Type
 Private Declare Function GetSystemPaletteEntries Lib "gdi32" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal wStartIndex As Long, _
       ByVal wNumEntries As Long, _
       lpPaletteEntries As PALETTEENTRY) As Long
 Private Declare Function CreatePalette Lib "gdi32" (lpLogPalette As LOGPALETTE) As Long
-Private Declare Function RealizePalette Lib "gdi32" (ByVal hDc As Long) As Long
+Private Declare Function RealizePalette Lib "gdi32" (ByVal hdc As Long) As Long
 Private Declare Function SelectPalette Lib "gdi32" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal hPalette As Long, _
       ByVal bForceBackground As Long) As Long
 Private Declare Function GetDC Lib "user32" (ByVal hWnd As Long) As Long
-Private Declare Function GetTextColor Lib "gdi32" (ByVal hDc As Long) As Long
-Private Declare Function SetTextColor Lib "gdi32" (ByVal hDc As Long, ByVal crColor As Long) As Long
-Private Declare Function GetBkColor Lib "gdi32" (ByVal hDc As Long) As Long
-Private Declare Function SetBkColor Lib "gdi32" (ByVal hDc As Long, ByVal crColor As Long) As Long
-Private Declare Function GetBkMode Lib "gdi32" (ByVal hDc As Long) As Long
-Private Declare Function SetBkMode Lib "gdi32" (ByVal hDc As Long, ByVal nBkMode As Long) As Long
+Private Declare Function GetTextColor Lib "gdi32" (ByVal hdc As Long) As Long
+Private Declare Function SetTextColor Lib "gdi32" (ByVal hdc As Long, ByVal crColor As Long) As Long
+Private Declare Function GetBkColor Lib "gdi32" (ByVal hdc As Long) As Long
+Private Declare Function SetBkColor Lib "gdi32" (ByVal hdc As Long, ByVal crColor As Long) As Long
+Private Declare Function GetBkMode Lib "gdi32" (ByVal hdc As Long) As Long
+Private Declare Function SetBkMode Lib "gdi32" (ByVal hdc As Long, ByVal nBkMode As Long) As Long
 Private Declare Function GetTextFace Lib "gdi32" _
       Alias "GetTextFaceA" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal nCount As Long, _
       ByVal lpFacename As String) As Long
 '--- GetTextMetrics constants
@@ -120,7 +120,7 @@ Private Const FW_NORMAL                 As Long = 400
 Private Const LF_FACESIZE               As Long = 32
 Private Declare Function GetTextMetrics Lib "gdi32" _
       Alias "GetTextMetricsA" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       lpMetrics As TEXTMETRIC) As Long
 Private Declare Function CreateBrushIndirect Lib "gdi32" (lpLogBrush As LOGBRUSH) As Long
 Private Type LOGBRUSH
@@ -132,10 +132,10 @@ Private Declare Function CreateSolidBrush Lib "gdi32" (ByVal crColor As Long) As
 Private Declare Function CreateHatchBrush Lib "gdi32" (ByVal nIndex As Long, ByVal crColor As Long) As Long
 Private Declare Function APIFillRect Lib "user32" _
       Alias "FillRect" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       lpRect As RECT, _
       ByVal hBrush As Long) As Long
-Private Declare Function SelectObject Lib "gdi32" (ByVal hDc As Long, ByVal hObject As Long) As Long
+Private Declare Function SelectObject Lib "gdi32" (ByVal hdc As Long, ByVal hObject As Long) As Long
 Private Declare Function ApiDeleteObject Lib "gdi32" Alias "DeleteObject" (ByVal hObject As Long) As Long
 Public Enum PrintPenStyles
    PS_SOLID = 0                ' The pen is solid.
@@ -170,13 +170,13 @@ Private Declare Function ApiCreatePen Lib "gdi32" _
       ByVal nWidth As Long, _
       ByVal crColor As Long) As Long
 Private Declare Function MoveToEx Lib "gdi32" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal x As Long, _
       ByVal y As Long, _
       ByVal lpPoint As Long) As Long
-Private Declare Function LineTo Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long) As Long
-Private Declare Function SetROP2 Lib "gdi32" (ByVal hDc As Long, ByVal nDrawMode As Long) As Long
-Private Declare Function GetROP2 Lib "gdi32" (ByVal hDc As Long) As Long
+Private Declare Function LineTo Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long) As Long
+Private Declare Function SetROP2 Lib "gdi32" (ByVal hdc As Long, ByVal nDrawMode As Long) As Long
+Private Declare Function GetROP2 Lib "gdi32" (ByVal hdc As Long) As Long
 Private Type LOGFONT
     lfHeight            As Long
     lfWidth             As Long
@@ -208,7 +208,7 @@ Private Declare Function CreateFontIndirect Lib "gdi32" Alias "CreateFontIndirec
 '--- DrawIconEx constants
 Private Const DI_NORMAL                 As Long = &H3
 Private Declare Function DrawIconEx Lib "user32" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal xLeft As Long, _
       ByVal yTop As Long, _
       ByVal hIcon As Long, _
@@ -217,9 +217,9 @@ Private Declare Function DrawIconEx Lib "user32" ( _
       ByVal istepIfAniCur As Long, _
       ByVal hbrFlickerFreeDraw As Long, _
       ByVal diFlags As Long) As Long
-Private Declare Function CreateCompatibleDC Lib "gdi32" (ByVal hDc As Long) As Long
+Private Declare Function CreateCompatibleDC Lib "gdi32" (ByVal hdc As Long) As Long
 Private Declare Function CreateCompatibleBitmap Lib "gdi32" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal nWidth As Long, _
       ByVal nHeight As Long) As Long
 Private Declare Function APIBitBlt Lib "gdi32" _
@@ -233,17 +233,17 @@ Private Declare Function APIBitBlt Lib "gdi32" _
       ByVal xSrc As Long, _
       ByVal ySrc As Long, _
       ByVal dwRop As Long) As Long
-Private Declare Function DeleteDC Lib "gdi32" (ByVal hDc As Long) As Long
+Private Declare Function DeleteDC Lib "gdi32" (ByVal hdc As Long) As Long
 Private Declare Function CreateEnhMetaFileLong Lib "gdi32" _
       Alias "CreateEnhMetaFileA" ( _
       ByVal hdcRef As Long, _
       ByVal lpFileName As String, _
       ByVal lpRect As Long, _
       ByVal lpDescription As String) As Long
-Private Declare Function CloseEnhMetaFile Lib "gdi32" (ByVal hDc As Long) As Long
+Private Declare Function CloseEnhMetaFile Lib "gdi32" (ByVal hdc As Long) As Long
 Private Declare Function DeleteEnhMetaFile Lib "gdi32" (ByVal hEmf As Long) As Long
-Private Declare Function PlayMetaFile Lib "gdi32" (ByVal hDc As Long, ByVal hMF As Long) As Long
-Private Declare Function PlayEnhMetaFile Lib "gdi32" (ByVal hDc As Long, ByVal hEmf As Long, lpRect As RECT) As Long
+Private Declare Function PlayMetaFile Lib "gdi32" (ByVal hdc As Long, ByVal hMF As Long) As Long
+Private Declare Function PlayEnhMetaFile Lib "gdi32" (ByVal hdc As Long, ByVal hEmf As Long, lpRect As RECT) As Long
 Public Enum PrintDrawTextStyles
     DT_LEFT = &H0               ' Aligns text to the left.
     DT_TOP = &H0                ' Justifies the text to the top of the rectangle.
@@ -277,7 +277,7 @@ Private Type DRAWTEXTPARAMS
 End Type
 Private Declare Function ApiDrawTextEx Lib "user32" _
       Alias "DrawTextExA" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal lpsz As String, _
       ByVal n As Long, _
       lpRect As RECT, _
@@ -285,8 +285,14 @@ Private Declare Function ApiDrawTextEx Lib "user32" _
       lpDrawTextParams As DRAWTEXTPARAMS) As Long
 Private Declare Function GetTextExtentPoint Lib "gdi32" _
       Alias "GetTextExtentPointA" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal lpszString As String, _
+      ByVal cbString As Long, _
+      lpSize As SIZEAPI) As Long
+Private Declare Function GetTextExtentPointW Lib "gdi32" _
+      ( _
+      ByVal hdc As Long, _
+      ByVal lpszString As Long, _
       ByVal cbString As Long, _
       lpSize As SIZEAPI) As Long
 Private Declare Function OleTranslateColor Lib "oleaut32.dll" ( _
@@ -295,18 +301,18 @@ Private Declare Function OleTranslateColor Lib "oleaut32.dll" ( _
       lColorRef As Long) As Long
 Private Declare Function APIRectangle Lib "gdi32" _
       Alias "Rectangle" ( _
-      ByVal hDc As Long, _
+      ByVal hdc As Long, _
       ByVal X1 As Long, _
       ByVal Y1 As Long, _
       ByVal X2 As Long, _
       ByVal Y2 As Long) As Long
-Private Declare Function SelectClipRgn Lib "gdi32" (ByVal hDc As Long, ByVal hRgn As Long) As Long
+Private Declare Function SelectClipRgn Lib "gdi32" (ByVal hdc As Long, ByVal hRgn As Long) As Long
 Private Declare Function CreateRectRgn Lib "gdi32" ( _
       ByVal X1 As Long, _
       ByVal Y1 As Long, _
       ByVal X2 As Long, _
       ByVal Y2 As Long) As Long
-Private Declare Function StretchBlt Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal nSrcWidth As Long, ByVal nSrcHeight As Long, ByVal dwRop As Long) As Long
+Private Declare Function StretchBlt Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal nSrcWidth As Long, ByVal nSrcHeight As Long, ByVal dwRop As Long) As Long
 Private Declare Function BitBlt Lib "gdi32" (ByVal hDestDC As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal dwRop As Long) As Long
 Private Const AC_SRC_OVER = &H0
 Private Type BLENDFUNCTION  'Required for Alphablend API
@@ -335,16 +341,16 @@ Private Declare Function TransparentBlt Lib "msimg32" (ByVal hdcDest As Long, By
 '    RtlMoveMemory lBF, BF, 4
 '    'AlphaBlend the picture from Picture1 over the picture of Picture2
 '    GdiAlphaBlend Picture2.hdc, 0, 0, Picture2.ScaleWidth, Picture2.ScaleHeight, Picture1.hdc, 0, 0, Picture1.ScaleWidth, Picture1.ScaleHeight, lBF
-Private Declare Function GdiAlphaBlend Lib "gdi32.dll" (ByVal hDc As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal hDc As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal BLENDFUNCT As Long) As Long
-Private Declare Function GdiTransparentBlt Lib "gdi32.dll" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal nSrcWidth As Long, ByVal nSrcHeight As Long, ByVal crTransparent As Long) As Boolean
+Private Declare Function GdiAlphaBlend Lib "gdi32.dll" (ByVal hdc As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal hdc As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal lInt As Long, ByVal BLENDFUNCT As Long) As Long
+Private Declare Function GdiTransparentBlt Lib "gdi32.dll" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, ByVal nSrcWidth As Long, ByVal nSrcHeight As Long, ByVal crTransparent As Long) As Boolean
 Private Const MM_HIMETRIC = 3
 Private Const MM_HIENGLISH = 5
 Private Const MM_LOENGLISH = 4
 Private Const MM_LOMETRIC = 2
 Private Const MM_TEXT = 1
 Private Const MM_TWIPS = 6
-Private Declare Function SetMapMode Lib "gdi32" (ByVal hDc As Long, ByVal nMapMode As Long) As Long
-Private Declare Function GetMapMode Lib "gdi32" (ByVal hDc As Long) As Long
+Private Declare Function SetMapMode Lib "gdi32" (ByVal hdc As Long, ByVal nMapMode As Long) As Long
+Private Declare Function GetMapMode Lib "gdi32" (ByVal hdc As Long) As Long
 Private Type PictDesc
     Size                As Long
     Type                As Long
@@ -580,18 +586,18 @@ End Type
 Private Const DI_APPBANDING = &H1
 Private Const DI_ROPS_READ_DESTINATION = &H2
 Private Declare Function StartDoc Lib "gdi32" Alias _
-    "StartDocA" (ByVal hDc As Long, lpdi As DOCINFO) As Long
+    "StartDocA" (ByVal hdc As Long, lpdi As DOCINFO) As Long
 Private Declare Function EndDoc Lib "gdi32" _
-    (ByVal hDc As Long) As Long
+    (ByVal hdc As Long) As Long
 Private Declare Function StartPage Lib "gdi32" _
-    (ByVal hDc As Long) As Long
+    (ByVal hdc As Long) As Long
 Private Declare Function EndPage Lib "gdi32" _
-    (ByVal hDc As Long) As Long
+    (ByVal hdc As Long) As Long
 'Private Declare Function Rectangle Lib "gdi32" (ByVal Hdc As Long, ByVal X1 As Long, ByVal Y1 As Long, ByVal X2 As Long, ByVal Y2 As Long) As Long
 'Private Declare Function MoveToEx Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long, lpPoint As POINTAPI) As Long
 'Private Declare Function LineTo Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long) As Long
 Private Declare Function TextOut Lib "gdi32" Alias _
-    "TextOutA" (ByVal hDc As Long, ByVal x As Long, ByVal _
+    "TextOutA" (ByVal hdc As Long, ByVal x As Long, ByVal _
     y As Long, ByVal lpString As String, ByVal nCount _
     As Long) As Long
 'Private Declare Function SelectObject Lib "gdi32" _
@@ -684,7 +690,7 @@ Private Type PRINTDLG_TYPE
     hwndOwner As Long
     hDevMode As Long
     hDevNames As Long
-    hDc As Long
+    hdc As Long
     flags As Long
     nFromPage As Integer
     nToPage As Integer
@@ -759,9 +765,9 @@ Private Declare Function BringWindowToTop Lib "user32" (ByVal hWnd As Long) As L
 'Private Declare Function StartDoc Lib "gdi32" Alias "StartDocA" (ByVal hdc As Long, lpdi As DOCINFO) As Long
 'Private Declare Function StartPage Lib "gdi32" (ByVal hdc As Long) As Long
 'Private Declare Function EndPage Lib "gdi32" (ByVal hdc As Long) As Long
-Private Declare Function EndDocAPI Lib "gdi32" Alias "EndDoc" (ByVal hDc As Long) As Long
-Private Declare Function AbortDoc Lib "gdi32" (ByVal hDc As Long) As Long
-Private Declare Function SetAbortProc Lib "gdi32" (ByVal hDc As Long, ByVal lpAbortProc As Long) As Long
+Private Declare Function EndDocAPI Lib "gdi32" Alias "EndDoc" (ByVal hdc As Long) As Long
+Private Declare Function AbortDoc Lib "gdi32" (ByVal hdc As Long) As Long
+Private Declare Function SetAbortProc Lib "gdi32" (ByVal hdc As Long, ByVal lpAbortProc As Long) As Long
 'Private Declare Function CreateCompatibleDC Lib "gdi32" (ByVal hdc As Long) As Long
 Private Declare Function GetObjectAPI Lib "gdi32" Alias "GetObjectA" (ByVal hObject As Long, ByVal nCount As Long, lpObject As Any) As Long
 'Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hdc As Long, ByVal nIndex As Long) As Long
@@ -803,12 +809,12 @@ Private Type BITMAP
         bmBitsPixel As Integer
         bmBits As Long
 End Type
-Private Declare Function SetStretchBltMode Lib "gdi32" (ByVal hDc As Long, ByVal nStretchMode As Long) As Long
-Private Declare Function FillRect Lib "user32" (ByVal hDc As Long, lpRect As RECT, ByVal hBrush As Long) As Long
+Private Declare Function SetStretchBltMode Lib "gdi32" (ByVal hdc As Long, ByVal nStretchMode As Long) As Long
+Private Declare Function FillRect Lib "user32" (ByVal hdc As Long, lpRect As RECT, ByVal hBrush As Long) As Long
 
 Private Declare Function GetDIBits Lib "gdi32" (ByVal aHDC As Long, ByVal hBitmap As Long, ByVal nStartScan As Long, ByVal nNumScans As Long, lpBits As Any, lpBI As BITMAPINFO, ByVal wUsage As Long) As Long
-Private Declare Function SetDIBitsToDevice Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long, ByVal dx As Long, ByVal dy As Long, ByVal SrcX As Long, ByVal SrcY As Long, ByVal Scan As Long, ByVal NumScans As Long, Bits As Any, BitsInfo As BITMAPINFO, ByVal wUsage As Long) As Long
-Private Declare Function StretchDIBits Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long, ByVal dx As Long, ByVal dy As Long, ByVal SrcX As Long, ByVal SrcY As Long, ByVal wSrcWidth As Long, ByVal wSrcHeight As Long, lpBits As Any, lpBitsInfo As BITMAPINFO, ByVal wUsage As Long, ByVal dwRop As Long) As Long
+Private Declare Function SetDIBitsToDevice Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal dx As Long, ByVal dy As Long, ByVal SrcX As Long, ByVal SrcY As Long, ByVal Scan As Long, ByVal NumScans As Long, Bits As Any, BitsInfo As BITMAPINFO, ByVal wUsage As Long) As Long
+Private Declare Function StretchDIBits Lib "gdi32" (ByVal hdc As Long, ByVal x As Long, ByVal y As Long, ByVal dx As Long, ByVal dy As Long, ByVal SrcX As Long, ByVal SrcY As Long, ByVal wSrcWidth As Long, ByVal wSrcHeight As Long, lpBits As Any, lpBitsInfo As BITMAPINFO, ByVal wUsage As Long, ByVal dwRop As Long) As Long
 'Private Declare Function GlobalUnlock Lib "kernel32" (ByVal hMem As Long) As Long
 'Private Declare Function DeleteDC Lib "gdi32" (ByVal hdc As Long) As Long
 Private Const TA_BASELINE = 24
@@ -820,7 +826,7 @@ Private Const TA_RIGHT = 2
 Private Const TA_TOP = 0
 Private Const TA_UPDATECP = 1
 Private Const TA_MASK = (TA_BASELINE + TA_CENTER + TA_UPDATECP)
-Private Declare Function SetTextAlign Lib "gdi32" (ByVal hDc As Long, ByVal wFlags As Long) As Long
+Private Declare Function SetTextAlign Lib "gdi32" (ByVal hdc As Long, ByVal wFlags As Long) As Long
 'Private AbortPrinting As Long
 Private Const SP_NOTREPORTED = &H4000
 Private Const SP_ERROR = (-1)
@@ -848,7 +854,7 @@ Private Const ERROR_INSUFFICIENT_BUFFER = 122
 'Private Const PRINTER_ACCESS_USE = &H8
 'Private Const PRINTER_ACCESS_ADMINISTER = &H4
 'Private Const PRINTER_ALL_ACCESS = (STANDARD_RIGHTS_REQUIRED Or PRINTER_ACCESS_ADMINISTER Or PRINTER_ACCESS_USE)
-Private Declare Function ResetDC Lib "gdi32" Alias "ResetDCA" (ByVal hDc As Long, lpInitData As Any) As Long
+Private Declare Function ResetDC Lib "gdi32" Alias "ResetDCA" (ByVal hdc As Long, lpInitData As Any) As Long
 Private Type SIZEL
     cX As Long
     cY As Long
@@ -1122,7 +1128,7 @@ Public Property Let Port(ByVal strPort As String)
   End If
 End Property
 Sub Init(ParentForm As Form)
-    hdcParent = ParentForm.hDc
+    hdcParent = ParentForm.hdc
     hwndParent = ParentForm.hWnd
 End Sub
 Private Sub PrinterDestroy()
@@ -1386,6 +1392,12 @@ End Property
 Public Property Get Height() As Long
     Height = (YPrintableArea * DPIY_Display) / (DPIY - OffsetY)
 End Property
+Public Property Get WidthPrint() As Long
+    WidthPrint = XPrintableArea
+End Property
+Public Property Get HeightPrint() As Long
+    HeightPrint = YPrintableArea
+End Property
 Private Sub PrinterInit()
 Dim hdcDisplay As Long
     hdcDisplay = CreateDC("DISPLAY", "", "", ByVal 0&)
@@ -1546,8 +1558,8 @@ End Sub
 '*************** End Class Functions ************************************************
 
 '*********************** Begin Drawing Function **********************************
-Public Property Get hDc() As Long
-    hDc = hdcPrinter
+Public Property Get hdc() As Long
+    hdc = hdcPrinter
 End Property
 Sub Cls(x As Long, y As Long, W As Long, H As Long, clrFill As Long)
 '   FillRect 0, 0, Width, Height, clrFill, hbrFill
@@ -1872,6 +1884,7 @@ End Sub
 Public Property Get TextHeight(ByVal sText As String) As Long
   Dim sz              As SIZEAPI
         GetTextExtentPoint hdcPrinter, sText, Len(sText), sz
+'        GetTextExtentPointW hdcPrinter, StrPtr(sText), Len(sText), sz
         '--- success
     sz.cY = (sz.cY * DPIY_Display) / (DPIY - OffsetY)
 
@@ -1882,6 +1895,7 @@ End Property
 Public Property Get TextWidth(ByVal sText As String) As Long
   Dim sz              As SIZEAPI
         GetTextExtentPoint hdcPrinter, sText, Len(sText), sz
+'        GetTextExtentPointW hdcPrinter, StrPtr(sText), Len(sText), sz
         '--- success
     sz.cX = (sz.cX * DPIX_Display) / (DPIX - OffsetX)
          TextWidth = sz.cX
